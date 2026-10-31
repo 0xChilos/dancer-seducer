@@ -32,10 +32,12 @@
 .vscode/compile_commands.json
 
 # Logs and temporary files
+**/__pycache__/
 *.log
 *.tmp
 *.bak
 *~
+.aiTools
 
 # Operating system files
 .DS_Store
