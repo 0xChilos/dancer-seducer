@@ -16,7 +16,8 @@ public class dancer : ModuleRules
 			"EnhancedInput",
 			"UMG",
 			"Slate",
-			"SlateCore"
+			"SlateCore",
+			"RhythmBattle"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {});

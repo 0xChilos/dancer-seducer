@@ -1,0 +1,53 @@
+{
+  "project": "RhythmBattle UE5.8 C++",
+  "model_context_tokens": 8192,
+  "mcp_editor_concurrency": 1,
+  "run_mode": "manual_orchestrator_manifest",
+  "tasks": [
+    {
+      "id": "P0-01", "title": "Inspect Unreal project and MCP connection",
+      "role": "coordinator", "depends_on": [], "editor_mcp": true,
+      "acceptance": ["Confirm project engine version and source tree", "Confirm baseline build", "Discover MCP toolsets", "Record existing input and UI conventions"]
+    },
+    {
+      "id": "P1-01", "title": "Add RhythmBattle runtime plugin and DataAsset types",
+      "role": "core", "depends_on": ["P0-01"], "editor_mcp": false,
+      "acceptance": ["Plugin builds", "Chart and config types compile", "No modifications outside plugin without approval"]
+    },
+    {
+      "id": "P1-02", "title": "Implement deterministic judge and scoring with unit tests",
+      "role": "core", "depends_on": ["P1-01"], "editor_mcp": false,
+      "acceptance": ["±45/100/160 ms boundaries pass", "Duplicate press scores once", "Miss and combo rules pass"]
+    },
+    {
+      "id": "P2-01", "title": "Implement song clock, Quartz start and note scheduler",
+      "role": "core", "depends_on": ["P1-02"], "editor_mcp": false,
+      "acceptance": ["Target beats map to consistent song time", "Same-lane queue selects correct note", "Pause/resume preserves note time and input consistency"]
+    },
+    {
+      "id": "P3-01", "title": "Implement 2-side curve/dot UMG renderer",
+      "role": "ui", "depends_on": ["P1-01"], "editor_mcp": false,
+      "acceptance": ["Renderer accepts deterministic fake-note snapshot", "Curves and hit circles laid out per lane", "No per-frame UObject creation"]
+    },
+    {
+      "id": "P4-01", "title": "Integrate Enhanced Input, feedback, and playable controller",
+      "role": "core", "depends_on": ["P2-01", "P3-01"], "editor_mcp": false,
+      "acceptance": ["Press to lane maps correctly", "Score/combo updates visible", "60 vs 120 FPS does not change deterministic hit decisions"]
+    },
+    {
+      "id": "P5-01", "title": "Implement event cues, pause reasons, and modifiers",
+      "role": "events", "depends_on": ["P2-01"], "editor_mcp": false,
+      "acceptance": ["BP events exposed", "Nested pause reasons safe", "Modifiers expire/restore", "Visual speed change leaves hit times immutable"]
+    },
+    {
+      "id": "P5-02", "title": "Create demo Blueprint events and assets",
+      "role": "editor-assets", "depends_on": ["P4-01", "P5-01"], "editor_mcp": true,
+      "acceptance": ["30-second chart asset", "2x2 lane layout with hits/combos", "Taunt interruption and score/speed boosts prove BP configurability", "Asset compilation checked"]
+    },
+    {
+      "id": "P6-01", "title": "Scale to 6x2 lanes and run QA",
+      "role": "qa", "depends_on": ["P5-02"], "editor_mcp": true,
+      "acceptance": ["12-lane stress run", "UI captured 16:9 and 21:9", "All automated tests pass", "No runtime dependency on MCP or Unsloth"]
+    }
+  ]
+}

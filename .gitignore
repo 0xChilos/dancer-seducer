@@ -38,6 +38,7 @@
 *.bak
 *~
 .aiTools
+unsloth-tmp/
 
 # Operating system files
 .DS_Store

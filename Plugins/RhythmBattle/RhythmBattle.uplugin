@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1.0",
+  "FriendlyName": "Rhythm Battle",
+  "Description": "Data-driven rhythm battle gameplay and HUD.",
+  "Category": "Gameplay",
+  "CanContainContent": true,
+  "EnabledByDefault": true,
+  "Modules": [{ "Name": "RhythmBattle", "Type": "Runtime", "LoadingPhase": "Default" }],
+  "Plugins": [{ "Name": "EnhancedInput", "Enabled": true }]
+}
