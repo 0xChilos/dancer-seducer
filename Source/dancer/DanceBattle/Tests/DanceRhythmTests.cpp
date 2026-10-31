@@ -1,5 +1,5 @@
 #include "Misc/AutomationTest.h"
-#include "../DanceRhythmComponent.h"
+#include "../Rhythm/DanceRhythmComponent.h"
 #include "UObject/StrongObjectPtr.h"
 
 #if WITH_DEV_AUTOMATION_TESTS

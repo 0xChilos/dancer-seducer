@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "DanceRhythmComponent.h"
+#include "../Rhythm/DanceRhythmComponent.h"
 #include "DanceAIOpponentComponent.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

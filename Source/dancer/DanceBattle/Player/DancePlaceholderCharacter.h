@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DancePlaceholderCharacter.generated.h"
 
 UCLASS()

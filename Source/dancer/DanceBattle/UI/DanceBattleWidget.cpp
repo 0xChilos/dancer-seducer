@@ -1,7 +1,7 @@
 #include "DanceBattleWidget.h"
-#include "DanceBattleGameMode.h"
-#include "DanceBattleGameState.h"
-#include "DanceRhythmComponent.h"
+#include "../Gameplay/DanceBattleGameMode.h"
+#include "../Gameplay/DanceBattleGameState.h"
+#include "../Rhythm/DanceRhythmComponent.h"
 
 
 void UDanceBattleWidget::InitializeBattle(ADanceBattleGameMode* InBattle)

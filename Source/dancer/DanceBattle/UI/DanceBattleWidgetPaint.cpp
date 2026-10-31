@@ -1,6 +1,6 @@
 #include "DanceBattleWidget.h"
-#include "DanceBattleGameMode.h"
-#include "DanceRhythmComponent.h"
+#include "../Gameplay/DanceBattleGameMode.h"
+#include "../Rhythm/DanceRhythmComponent.h"
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
 #include "Math/UnrealMathUtility.h"

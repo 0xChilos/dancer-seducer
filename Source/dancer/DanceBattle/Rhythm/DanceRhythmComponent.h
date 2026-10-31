@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DanceRhythmComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnNoteSpawned, const FDanceNote&);

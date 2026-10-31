@@ -8,8 +8,8 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Camera/CameraActor.h"
-#include "DanceBattleWidget.h"
-#include "DanceBattleGameMode.h"
+#include "../UI/DanceBattleWidget.h"
+#include "../Gameplay/DanceBattleGameMode.h"
 
 void ADanceBattlePlayerController::BeginPlay() { Super::BeginPlay(); SetInputMode(FInputModeGameOnly()); bShowMouseCursor = false; for (TActorIterator<ACameraActor> It(GetWorld()); It; ++It) { if (It->ActorHasTag(TEXT("DanceBattleCamera"))) { SetViewTarget(*It); break; } } HUD = CreateWidget<UDanceBattleWidget>(this, UDanceBattleWidget::StaticClass()); if (HUD) { HUD->AddToViewport(); HUD->InitializeBattle(Cast<ADanceBattleGameMode>(GetWorld()->GetAuthGameMode())); } }
 

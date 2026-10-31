@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DanceBattleGameMode.generated.h"
 
 class UDanceRhythmComponent;

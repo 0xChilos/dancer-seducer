@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DanceBattleWidget.generated.h"
 
 class ADanceBattleGameMode;

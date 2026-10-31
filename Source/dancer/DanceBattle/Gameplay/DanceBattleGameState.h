@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DanceBattleGameState.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnDanceStateChanged);

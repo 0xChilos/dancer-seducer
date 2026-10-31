@@ -1,8 +1,8 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "UObject/StrongObjectPtr.h"
-#include "../DanceRhythmComponent.h"
-#include "../DanceAIOpponentComponent.h"
+#include "../Rhythm/DanceRhythmComponent.h"
+#include "../AI/DanceAIOpponentComponent.h"
 
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDanceAITest_Autonomous, "DanceBattle.AI.Autonomous", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

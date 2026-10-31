@@ -1,9 +1,9 @@
 #include "DanceBattleGameMode.h"
 #include "DanceBattleGameState.h"
-#include "DanceBattlePlayerController.h"
-#include "DanceRhythmComponent.h"
-#include "DanceAIOpponentComponent.h"
-#include "DancePlaceholderCharacter.h"
+#include "../Player/DanceBattlePlayerController.h"
+#include "../Rhythm/DanceRhythmComponent.h"
+#include "../AI/DanceAIOpponentComponent.h"
+#include "../Player/DancePlaceholderCharacter.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 

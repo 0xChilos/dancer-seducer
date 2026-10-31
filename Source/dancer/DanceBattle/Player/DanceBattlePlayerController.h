@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "DanceTypes.h"
+#include "../Data/DanceTypes.h"
 #include "DanceBattlePlayerController.generated.h"
 
 class UInputMappingContext;
