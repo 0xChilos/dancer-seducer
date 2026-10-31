@@ -1,0 +1,51 @@
+# Unreal Engine generated data (including plugin build output)
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+
+# Packaged builds
+/PackagedBuilds/
+/StagedBuilds/
+
+# Generated IDE projects and caches
+.vs/
+.idea/
+*.sln
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln.docstates
+*.code-workspace
+*.xcodeproj/
+*.xcworkspace/
+
+# Local editor settings; keep shared MCP configuration
+.vscode/ipch/
+.vscode/.browse.VC.db*
+.vscode/compileCommands_*.json
+.vscode/compile_commands.json
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local secrets
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Keep Content/, Config/, Source/, Build/, and *.uproject in version control.
