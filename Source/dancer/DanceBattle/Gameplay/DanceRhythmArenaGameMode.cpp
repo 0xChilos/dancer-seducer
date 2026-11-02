@@ -29,7 +29,11 @@ void ADanceRhythmArenaGameMode::HandleNote(const FRhythmHitResult& Result)
     ADancePlaceholderCharacter* Dancer = Result.PlayerIndex == 0 ? PlayerDancer.Get() :
         (Result.PlayerIndex == 1 ? AIDancer.Get() : nullptr);
     if (!IsValid(Dancer)) return;
-    const EDanceDirection Direction = Result.LaneId == 0 ? EDanceDirection::Left : EDanceDirection::Right;
+    // Map 3 lanes to directions: lane 0=Up, lane 1=Left, lane 2=Down
+    EDanceDirection Direction;
+    if (Result.LaneId == 0) Direction = EDanceDirection::Up;
+    else if (Result.LaneId == 1) Direction = EDanceDirection::Left;
+    else Direction = EDanceDirection::Down;
     const EDanceJudgment Judgment = Result.Judgment == ERhythmJudgment::Perfect ? EDanceJudgment::Perfect :
         (Result.Judgment == ERhythmJudgment::Miss ? EDanceJudgment::Miss : EDanceJudgment::Good);
     Dancer->React(Direction, Judgment);

@@ -21,13 +21,14 @@ URhythmLaneWidget::URhythmLaneWidget(const FObjectInitializer& Initializer) : Su
     SetVisibility(ESlateVisibility::HitTestInvisible);
     ForceVolatile(true); // Cosmetic feedback fades even when an external snapshot is unchanged.
     for (int32 Player = 0; Player < 2; ++Player)
-        for (int32 Lane = 0; Lane < 2; ++Lane)
+        for (int32 Lane = 0; Lane < 3; ++Lane)
         {
             FRhythmLaneLayout& Layout = Lanes.AddDefaulted_GetRef();
             Layout.PlayerIndex = Player; Layout.LaneId = Lane;
-            Layout.Start = FVector2D(Player == 0 ? .06 : .94, .60 + Lane * .25);
-            Layout.HitTarget = FVector2D(Player == 0 ? .28 + Lane * .07 : .72 - Lane * .07, .69);
-            Layout.Color = Lane == 0 ? FLinearColor(.95f, .92f, .35f) : FLinearColor(.95f, .65f, .85f);
+            const float Y = (Player == 0 ? .54f : .60f) + Lane * .14f;
+            Layout.Start = FVector2D(Player == 0 ? .06 : .94, Y);
+            Layout.HitTarget = FVector2D(Player == 0 ? .30 : .70, Y);
+            Layout.Color = Lane == 0 ? FLinearColor(1.f, .4f, .65f) : (Lane == 1 ? FLinearColor(.3f, 1.f, .9f) : FLinearColor(.4f, 1.f, .5f));
         }
 }
 
@@ -36,6 +37,12 @@ void URhythmLaneWidget::ReleaseSlateResources(bool bReleaseChildren) { Super::Re
 void URhythmLaneWidget::SetLaneSnapshot(const TArray<FRhythmLaneLayout>& Layouts, const TArray<FRhythmRuntimeNote>& Notes)
 {
     Lanes = Layouts; VisibleNotes = Notes;
+    if (Surface) Surface->Invalidate(EInvalidateWidgetReason::Paint);
+}
+void URhythmLaneWidget::SetActiveLane(int32 PlayerIndex, int32 LaneId)
+{
+    if (PlayerIndex < 0 || PlayerIndex >= 2 || LaneId < 0 || LaneId >= 3 || ActiveLaneIds[PlayerIndex] == LaneId) return;
+    ActiveLaneIds[PlayerIndex] = LaneId;
     if (Surface) Surface->Invalidate(EInvalidateWidgetReason::Paint);
 }
 void URhythmLaneWidget::PushHitFeedback(const FRhythmHitResult& Result)
@@ -86,7 +93,9 @@ int32 URhythmLaneWidget::PaintLanes(const FGeometry& Geometry, FSlateWindowEleme
             const float Angle = Index * UE_TWO_PI / 32;
             Ring[Index] = Target + FVector2D(FMath::Cos(Angle), FMath::Sin(Angle)) * Radius;
         }
-        FSlateDrawElement::MakeLines(Elements, Layer + 1, Geometry.ToPaintGeometry(), Ring, ESlateDrawEffect::None, Lane.Color * Tint, true, 3.f + Flash * 3);
+        const bool bSelected = ActiveLaneIds[Lane.PlayerIndex] == Lane.LaneId;
+        FSlateDrawElement::MakeLines(Elements, Layer + 1, Geometry.ToPaintGeometry(), Ring, ESlateDrawEffect::None, Lane.Color * Tint, true, (bSelected ? 6.f : 3.f) + Flash * 3);
+        if (bSelected) Dot(Target, 6.f, FLinearColor::White, Layer + 2);
         for (const FRhythmRuntimeNote& Note : VisibleNotes)
             if (Note.bSpawned && Note.State == ERhythmNoteState::Active && Note.PlayerIndex == Lane.PlayerIndex && Note.LaneId == Lane.LaneId)
             {

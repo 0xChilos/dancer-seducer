@@ -35,24 +35,33 @@ void ARhythmDemoGameMode::RestartBattle()
     if (!DemoChart)
     {
         DemoChart = NewObject<URhythmChart>(this);
+        // 3 lanes per side (6 total): upper (L0), middle (L1), lower (L2)
+        // Left side (P0): W=upper, A=middle, S=lower
+        // Right side (P1): Up=upper, Right=middle, Down=lower
         for (int32 P = 0; P < 2; ++P)
-            for (int32 L = 0; L < 2; ++L)
+            for (int32 L = 0; L < 3; ++L)
             {
                 FRhythmLaneLayout Lane;
                 Lane.PlayerIndex = P; Lane.LaneId = L;
-                const float X = P == 0 ? .25f : .75f;
-                Lane.Start = FVector2D(X + (L == 0 ? -.17f : .17f), .85f);
-                Lane.HitTarget = FVector2D(X + (L == 0 ? -.055f : .055f), .65f);
-                Lane.Color = L == 0 ? FLinearColor(1.f,.4f,.65f) : FLinearColor(.9f,1.f,.3f);
+                const float Y = (P == 0 ? .54f : .60f) + L * .14f;
+                Lane.Start = FVector2D(P == 0 ? .06f : .94f, Y);
+                Lane.HitTarget = FVector2D(P == 0 ? .30f : .70f, Y);
+                // Colors: upper=pink, middle=cyan, lower=green
+                if (L == 0) Lane.Color = FLinearColor(1.f, .4f, .65f);
+                else if (L == 1) Lane.Color = FLinearColor(.3f, 1.f, .9f);
+                else Lane.Color = FLinearColor(.4f, 1.f, .5f);
                 DemoChart->Lanes.Add(Lane);
             }
         for (int32 Beat = 4; Beat < 58; ++Beat)
             for (int32 P = 0; P < 2; ++P)
-            { FRhythmNoteDefinition N; N.PlayerIndex=P; N.LaneId=(Beat+P)%2; N.Beat=Beat; DemoChart->Notes.Add(N); }
+            { FRhythmNoteDefinition N; N.PlayerIndex=P; N.LaneId=(Beat+P)%3; N.Beat=Beat; DemoChart->Notes.Add(N); }
         for (const auto& Pair : TArray<TPair<FName,double>>{{TEXT("Taunt"),16.},{TEXT("SpeedBoost"),32.},{TEXT("LaneBreak"),48.}})
         { FRhythmEventCue Cue; Cue.EventId=Pair.Key; Cue.Beat=Pair.Value; DemoChart->Events.Add(Cue); }
     }
     bComboBoostUsed = false; TauntResumeAt = 0.;
+    ActiveLanes.Reset();
+    ActiveLanes.Add(0); // Start with upper lane for both players
+    ActiveLanes.Add(0);
     USoundBase* Music = DemoMusic;
     if (!Music && FMath::IsFinite(DemoChart->DurationSeconds) && DemoChart->DurationSeconds > 0.0 &&
         DemoChart->DurationSeconds <= 120.0 && FMath::IsFinite(DemoChart->BPM) && DemoChart->BPM >= 1.0 && DemoChart->BPM <= 1000.0 &&
@@ -117,7 +126,10 @@ void ARhythmDemoGameMode::Tick(float Dt)
     const double Now=Battle->GetSongTimeSeconds();
     for (const auto& Note : Battle->GetNoteSnapshot())
         if (Note.PlayerIndex==1 && Note.Judgment==ERhythmJudgment::None && Note.HitTimeSeconds<=Now)
+        {
+            SetActiveLane(1, Note.LaneId);
             Battle->SubmitLaneInput(1,Note.LaneId);
+        }
 }
 void ARhythmDemoPlayerController::BeginPlay()
 {
@@ -136,23 +148,37 @@ void ARhythmDemoPlayerController::SetupInputComponent()
     Super::SetupInputComponent();
     auto* Input=Cast<UEnhancedInputComponent>(InputComponent); if (!Input) return;
     Mapping=NewObject<UInputMappingContext>(this);
-    const FKey Keyboard[]={EKeys::A,EKeys::D,EKeys::J,EKeys::L,EKeys::R,EKeys::P};
-    const FKey Pad[]={EKeys::Gamepad_FaceButton_Left,EKeys::Gamepad_FaceButton_Bottom,EKeys::Gamepad_LeftShoulder,EKeys::Gamepad_RightShoulder,EKeys::Gamepad_Special_Right,EKeys::Gamepad_Special_Left};
-    for (int32 I=0;I<6;++I)
+    const ARhythmDemoGameMode* GM = GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>();
+    // 6 lane keys: W/A/S (left) + Up/Right/Down (right) + R (restart) + P (pause)
+    const FKey Keyboard[]={EKeys::W,EKeys::A,EKeys::S,EKeys::Up,EKeys::Right,EKeys::Down,EKeys::R,EKeys::P};
+    const FKey Pad[]={EKeys::Gamepad_FaceButton_Left,EKeys::Gamepad_FaceButton_Bottom,EKeys::Gamepad_FaceButton_Right,EKeys::Gamepad_LeftShoulder,EKeys::Gamepad_RightShoulder,EKeys::Gamepad_RightTrigger,EKeys::Gamepad_Special_Right,EKeys::Gamepad_Special_Left};
+    for (int32 I=0;I<8;++I)
     {
+        const int32 PlayerIndex = I < 3 ? 0 : 1;
+        const int32 Lane = I < 3 ? I : I - 3;
+        bool bHasAuthoredAction = false;
+        if (I < 6 && AuthoredMapping && GM && GM->DemoChart)
+            for (const FRhythmLaneLayout& Layout : GM->DemoChart->Lanes)
+                if (Layout.PlayerIndex == PlayerIndex && Layout.LaneId == Lane && Layout.InputAction)
+                    bHasAuthoredAction = true;
+        if (bHasAuthoredAction) continue;
         auto* Action=NewObject<UInputAction>(this); Action->ValueType=EInputActionValueType::Boolean; Actions.Add(Action);
         Mapping->MapKey(Action,Keyboard[I]); Mapping->MapKey(Action,Pad[I]);
-        if (I<4 && !AuthoredMapping) Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::PressLane,I/2,I%2);
-        else if (I==4) Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::Restart);
-        else if (I==5) Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::TogglePause);
+        if (I<6)
+        {
+            // Lane keys: I=0,1,2 (W,A,S) -> Player 0, lanes 0,1,2
+            // I=3,4,5 (Up,Right,Down) -> Player 1, lanes 0,1,2
+            Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::PressLane,PlayerIndex,Lane);
+        }
+        else if (I==6) Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::Restart);
+        else if (I==7) Input->BindAction(Action,ETriggerEvent::Started,this,&ARhythmDemoPlayerController::TogglePause);
     }
     if (AuthoredMapping)
     {
-        if (auto* GM = GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>())
-            if (GM->DemoChart)
-                for (const FRhythmLaneLayout& Lane : GM->DemoChart->Lanes)
-                    if (Lane.InputAction)
-                        Input->BindAction(Lane.InputAction, ETriggerEvent::Started, this, &ARhythmDemoPlayerController::PressLane, Lane.PlayerIndex, Lane.LaneId);
+        if (GM && GM->DemoChart)
+            for (const FRhythmLaneLayout& Lane : GM->DemoChart->Lanes)
+                if (Lane.InputAction)
+                    Input->BindAction(Lane.InputAction, ETriggerEvent::Started, this, &ARhythmDemoPlayerController::PressLane, Lane.PlayerIndex, Lane.LaneId);
     }
     if (GetLocalPlayer()) if (auto* Sub=GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
     {
@@ -161,7 +187,25 @@ void ARhythmDemoPlayerController::SetupInputComponent()
     }
 }
 void ARhythmDemoPlayerController::PressLane(int32 PlayerIndex,int32 Lane)
-{ if (auto* GM=GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>()) GM->Battle->SubmitLaneInput(PlayerIndex,Lane); }
+{
+    if (auto* GM=GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>())
+    {
+        GM->SetActiveLane(PlayerIndex, Lane);
+        GM->Battle->SubmitLaneInput(PlayerIndex, Lane);
+    }
+}
+
+void ARhythmDemoGameMode::SetActiveLane(int32 PlayerIndex, int32 Lane)
+{
+    if (PlayerIndex >= 0 && PlayerIndex < ActiveLanes.Num() && Lane >= 0 && Lane < 3)
+        ActiveLanes[PlayerIndex] = Lane;
+}
+
+int32 ARhythmDemoGameMode::GetActiveLane(int32 PlayerIndex) const
+{
+    if (PlayerIndex < 0 || PlayerIndex > 1 || PlayerIndex >= ActiveLanes.Num()) return 0;
+    return ActiveLanes[PlayerIndex];
+}
 void ARhythmDemoPlayerController::Restart()
 { if (auto* GM=GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>()) GM->RestartBattle(); }
 void ARhythmDemoPlayerController::TogglePause()

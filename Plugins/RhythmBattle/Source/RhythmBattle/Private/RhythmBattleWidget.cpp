@@ -1,6 +1,8 @@
 #include "RhythmBattleWidget.h"
 #include "RhythmBattleComponent.h"
 #include "RhythmLaneWidget.h"
+#include "RhythmDemoGameMode.h"
+#include "Engine/World.h"
 #include "HAL/PlatformTime.h"
 #include "Rendering/DrawElements.h"
 #include "Styling/CoreStyle.h"
@@ -38,6 +40,10 @@ void URhythmBattleWidget::NativeTick(const FGeometry& Geometry, float DeltaSecon
     Super::NativeTick(Geometry, DeltaSeconds);
     if (BattleComponent)
         SetSnapshot(BattleComponent->GetLaneSnapshot(), BattleComponent->GetNoteSnapshot(), BattleComponent->GetScoreSnapshot(), BattleComponent->GetSongTimeSeconds(), BattleComponent->GetDurationSeconds(), BattleComponent->GetBattleState());
+    if (LaneWidget)
+        if (const ARhythmDemoGameMode* GameMode = GetWorld()->GetAuthGameMode<ARhythmDemoGameMode>())
+            for (int32 Player = 0; Player < 2; ++Player)
+                LaneWidget->SetActiveLane(Player, GameMode->GetActiveLane(Player));
 }
 void URhythmBattleWidget::SetSnapshot(const TArray<FRhythmLaneLayout>& Lanes, const TArray<FRhythmRuntimeNote>& Notes, const TArray<FRhythmPlayerScore>& Scores, double SongTime, double Duration, ERhythmBattleState Phase)
 {
@@ -95,8 +101,8 @@ int32 URhythmBattleWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
         Text(TEXT("Finished - Press R to restart"), FVector2D(Size.X * .28f, Size.Y * .80f), Tint);
     }
     
-    Text(TEXT("A / D"), FVector2D(Size.X * .08f, Size.Y * .90f), Tint.CopyWithNewOpacity(0.6f));
-    Text(TEXT("J / L (autoplay)"), FVector2D(Size.X * .60f, Size.Y * .90f), Tint.CopyWithNewOpacity(0.6f));
+    Text(TEXT("W / A / S"), FVector2D(Size.X * .08f, Size.Y * .90f), Tint.CopyWithNewOpacity(0.6f));
+    Text(TEXT("Up / Right / Down"), FVector2D(Size.X * .60f, Size.Y * .90f), Tint.CopyWithNewOpacity(0.6f));
     Text(TEXT("R - Restart | P - Pause"), FVector2D(Size.X * .32f, Size.Y * .96f), Tint.CopyWithNewOpacity(0.6f));
 
     return TopLayer + 1;

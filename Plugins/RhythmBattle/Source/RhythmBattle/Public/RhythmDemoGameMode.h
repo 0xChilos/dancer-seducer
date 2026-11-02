@@ -22,6 +22,8 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
     UFUNCTION(BlueprintCallable) void RestartBattle();
+    UFUNCTION(BlueprintPure, Category="Rhythm") int32 GetActiveLane(int32 PlayerIndex) const;
+    UFUNCTION(BlueprintCallable, Category="Rhythm") void SetActiveLane(int32 PlayerIndex, int32 Lane);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<URhythmBattleComponent> Battle;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TObjectPtr<URhythmChart> DemoChart;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TObjectPtr<URhythmBattleConfig> DemoConfig;
@@ -32,6 +34,7 @@ private:
     UFUNCTION() void HandleScore(const struct FRhythmPlayerScore& Score);
     bool bComboBoostUsed = false;
     double TauntResumeAt = 0.;
+    TArray<int32> ActiveLanes; // [0] for player 0, [1] for player 1
 };
 
 UCLASS()

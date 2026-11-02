@@ -5,8 +5,8 @@ The `RhythmBattle` plugin supplies a battle component, chart and configuration d
 ## Setup
 
 1. Build the `dancerEditor` target with UE 5.8. Enable the RhythmBattle plugin and Enhanced Input if they are not already enabled.
-2. Open the project in the editor and run `docs/Rhythm/tools/create_editor_assets.py` using **Tools > Execute Python Script**. The script creates missing assets under `/Game/Rhythm`; it leaves existing assets intact. `docs/Rhythm/tools/editor_startup.py` also registers a temporary PIE QA observer and is intended for verification.
-3. In the existing arena's World Settings, set GameMode Override to `/Game/Rhythm/BP_RhythmArenaGameMode`. Its controller is `/Game/Rhythm/BP_RhythmPlayerController`, with `/Game/Rhythm/UI/WBP_RhythmBattle` as its HUD. A camera tagged `DanceBattleCamera` is selected when available.
+2. Open the project in the editor and run `docs/Rhythm/tools/create_editor_assets.py` using **Tools > Execute Python Script**. The script creates or updates assets under `/Game/Rhythm` and saves the arena map. `docs/Rhythm/tools/editor_startup.py` also registers a temporary PIE QA observer and is intended for verification.
+3. The asset script sets the GameMode Override on `/Game/DanceBattle/Maps/L_DanceBattle` to `/Game/Rhythm/BP_RhythmArenaGameMode`. Its controller is `/Game/Rhythm/BP_RhythmPlayerController`, with `/Game/Rhythm/UI/WBP_RhythmBattle` as its HUD. A camera tagged `DanceBattleCamera` is selected when available.
 4. Assign a `RhythmChart`, `RhythmBattleConfig`, and optional `DemoMusic` on the game mode defaults. With no chart or config assigned, the demo creates defaults; without music it generates a click track when chart settings permit.
 5. Play in editor. Restart creates a fresh battle. `StartBattle` validates the chart and config and returns false for invalid values.
 
@@ -14,12 +14,12 @@ The `RhythmBattle` plugin supplies a battle component, chart and configuration d
 
 | Action | Keyboard | Gamepad |
 | --- | --- | --- |
-| Player 0 lanes 0 / 1 | A / D | Face Left / Face Bottom |
-| Player 1 lanes 0 / 1 | J / L | Left Shoulder / Right Shoulder |
+| Player 0 lanes 0 / 1 / 2 | W / A / S | Face Left / Face Bottom / Face Right |
+| Player 1 lanes 0 / 1 / 2 | Up / Right / Down | Left Shoulder / Right Shoulder / Right Trigger |
 | Restart | R | Special Right |
 | Toggle player pause | P | Special Left |
 
-Player 1 autoplay is enabled by default on the demo mode; disable `OpponentAutoplay` for manual play. Inputs call `SubmitLaneInput` for a player and lane. The generated input context contains the four lane actions; restart and pause retain the controller's built-in bindings.
+Player 1 autoplay is enabled by default on the demo mode; disable `OpponentAutoplay` for manual play. Inputs move that player's active lane and call `SubmitLaneInput`. The generated input context contains six lane actions; restart and pause retain the controller's built-in bindings.
 
 ## Authoring charts and input
 

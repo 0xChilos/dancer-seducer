@@ -16,6 +16,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rhythm", meta=(ClampMin="8")) float DotSpacing = 28.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rhythm", meta=(ClampMin="4")) float TargetRadius = 22.f;
     UFUNCTION(BlueprintCallable, Category="Rhythm") void SetLaneSnapshot(const TArray<FRhythmLaneLayout>& Layouts, const TArray<FRhythmRuntimeNote>& Notes);
+    UFUNCTION(BlueprintCallable, Category="Rhythm") void SetActiveLane(int32 PlayerIndex, int32 LaneId);
     UFUNCTION(BlueprintCallable, Category="Rhythm") void PushHitFeedback(const FRhythmHitResult& Result);
     int32 PaintLanes(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer, const FWidgetStyle& Style) const;
     virtual void ReleaseSlateResources(bool bReleaseChildren) override;
@@ -23,6 +24,7 @@ protected:
     virtual TSharedRef<SWidget> RebuildWidget() override;
 private:
     TArray<FRhythmRuntimeNote> VisibleNotes;
+    int32 ActiveLaneIds[2] = {0, 0};
     struct FFeedback { FRhythmHitResult Result; double ExpiresAt = 0.; };
     TArray<FFeedback> Feedback;
     struct FCachedLaneGeometry
